@@ -1,5 +1,15 @@
 #include <windows.h>
 #include "resource.h"
+#include "sprite.h"
+
+Sprite *sprite;
+Facets *facets;
+
+RECT clientRect;
+
+FLOAT x = 0;
+FLOAT y = 0;
+FLOAT size = 30;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 ATOM             MyRegisterClass(HINSTANCE);
@@ -17,6 +27,8 @@ INT CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+
+	delete sprite;
 	return (INT)msg.wParam;
 }
 
@@ -26,8 +38,13 @@ LRESULT WINAPI MyWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_PAINT:
 	{
+		sprite->DrawRectangle(hWnd, x, y, size);
 	}
 	break;
+	case VK_RETURN:
+	{
+
+	}
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
@@ -59,11 +76,20 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 BOOL InitInstance(HINSTANCE hInstance, INT nCmdShow)
 {
 	HWND hWnd = CreateWindow(L"WinAPI", L"Sprite", WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, 0, 720, 480, NULL, NULL, hInstance, NULL);
-
 	if (!hWnd)
 	{
 		return FALSE;
 	}
+
+	GetWindowRect(hWnd, &clientRect);
+	sprite = new Sprite(hWnd, clientRect);
+	if (!sprite)
+	{
+		return FALSE;
+	}
+
+	x = (clientRect.right - clientRect.left - size) / 2;
+	y = ((clientRect.bottom - clientRect.top) / 2) - size;
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);

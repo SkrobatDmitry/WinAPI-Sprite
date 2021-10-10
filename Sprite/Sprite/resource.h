@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Включаемый файл, созданный в Microsoft Visual C++.
-// Используется Sprite.rc
+// Include file, created in Microsoft Visual C++.
+// Used by Sprite.rc
 //
 #define IDI_MAIN_ICON                   101
 
