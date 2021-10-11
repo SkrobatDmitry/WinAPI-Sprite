@@ -3,13 +3,9 @@
 #include "sprite.h"
 
 Sprite *sprite;
-Facets *facets;
 
 RECT clientRect;
-
-FLOAT x = 0;
-FLOAT y = 0;
-FLOAT size = 30;
+POINT mouseCoords;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 ATOM             MyRegisterClass(HINSTANCE);
@@ -37,13 +33,40 @@ LRESULT WINAPI MyWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch (uMsg)
 	{
 	case WM_PAINT:
+		sprite->Draw(hWnd);
+		break;
+	case WM_KEYDOWN:
 	{
-		sprite->DrawRectangle(hWnd, x, y, size);
-	}
-	break;
-	case VK_RETURN:
-	{
+		switch (wParam)
+		{
+		case VK_UP:
+		case 'W':
+			sprite->MakeAMove(false, false);
+			break;
+		case VK_DOWN:
+		case 'S':
+			sprite->MakeAMove(false, true);
+			break;
+		case VK_LEFT:
+		case 'A':
+			sprite->MakeAMove(true, false);
+			break;
+		case VK_RIGHT:
+		case 'D':
+			sprite->MakeAMove(true, true);
+			break;
+		case VK_RETURN:
+			sprite->ChangeAState();
+			break;
+		}
 
+		InvalidateRect(hWnd, NULL, TRUE);
+		break;
+	}
+	case WM_LBUTTONDOWN:
+	{
+		GetCursorPos(&mouseCoords);
+		break;
 	}
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -88,8 +111,7 @@ BOOL InitInstance(HINSTANCE hInstance, INT nCmdShow)
 		return FALSE;
 	}
 
-	x = (clientRect.right - clientRect.left - size) / 2;
-	y = ((clientRect.bottom - clientRect.top) / 2) - size;
+	sprite->InitProperties((clientRect.right - clientRect.left - 30.0f) / 2, ((clientRect.bottom - clientRect.top) / 2) - 30.0f, 30.0f, 30.0f, 3.0f, 10.0f);
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
