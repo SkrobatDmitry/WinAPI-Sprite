@@ -41,25 +41,33 @@ LRESULT WINAPI MyWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 		case VK_UP:
 		case 'W':
-			sprite->MakeAMove(false, false);
+			sprite->MakeAMove('W');
 			break;
 		case VK_DOWN:
 		case 'S':
-			sprite->MakeAMove(false, true);
+			sprite->MakeAMove('S');
 			break;
 		case VK_LEFT:
 		case 'A':
-			sprite->MakeAMove(true, false);
+			sprite->MakeAMove('A');
 			break;
 		case VK_RIGHT:
 		case 'D':
-			sprite->MakeAMove(true, true);
+			sprite->MakeAMove('D');
 			break;
 		case VK_RETURN:
 			sprite->ChangeAState();
 			break;
 		}
 
+		InvalidateRect(hWnd, NULL, TRUE);
+		break;
+	}
+	case WM_SIZE:
+	{
+		GetClientRect(hWnd, &clientRect);
+		sprite->SetARect(clientRect);
+		sprite->MakeABounce();
 		InvalidateRect(hWnd, NULL, TRUE);
 		break;
 	}
@@ -104,14 +112,14 @@ BOOL InitInstance(HINSTANCE hInstance, INT nCmdShow)
 		return FALSE;
 	}
 
-	GetWindowRect(hWnd, &clientRect);
+	GetClientRect(hWnd, &clientRect);
 	sprite = new Sprite(hWnd, clientRect);
 	if (!sprite)
 	{
 		return FALSE;
 	}
 
-	sprite->InitProperties((clientRect.right - clientRect.left - 30.0f) / 2, ((clientRect.bottom - clientRect.top) / 2) - 30.0f, 30.0f, 30.0f, 3.0f, 10.0f);
+	sprite->InitProperties((clientRect.right - clientRect.left - 30.0f) / 2, (clientRect.bottom - clientRect.top - 30.0f) / 2, 30.0f, 30.0f, 3.0f, 10.0f);
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);

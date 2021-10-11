@@ -40,7 +40,12 @@ public:
 	~Sprite();
 
 	void InitProperties(FLOAT x, FLOAT y, FLOAT width, FLOAT height, FLOAT speed, FLOAT rebound);
-	void MakeAMove(BOOL isDiagonal, BOOL isForward);
+	
+	void MakeAMove(CHAR key);
+	void MakeABounce();
+	
+	void SetARect(RECT clientRect);
 	void ChangeAState();
+	
 	void Draw(HWND hWnd);
 };

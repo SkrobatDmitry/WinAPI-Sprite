@@ -46,16 +46,50 @@ void Sprite::InitProperties(FLOAT x, FLOAT y, FLOAT width, FLOAT height, FLOAT s
 	properties.isImage = false;
 }
 
-void Sprite::MakeAMove(BOOL isDiagonal, BOOL isForward)
+void Sprite::MakeAMove(CHAR key)
 {
-	if (isDiagonal)
+	switch (key)
 	{
-		isForward ? properties.x += properties.speed : properties.x -= properties.speed;
+	case 'W':
+		properties.y -= properties.speed;
+		break;
+	case 'S':
+		properties.y += properties.speed;
+		break;
+	case 'A':
+		properties.x -= properties.speed;
+		break;
+	case 'D':
+		properties.x += properties.speed;
+		break;
 	}
-	else
+
+	MakeABounce();
+}
+
+void Sprite::MakeABounce()
+{
+	if (properties.y < clientRect.top)
 	{
-		isForward ? properties.y += properties.speed : properties.y -= properties.speed;
+		properties.y = clientRect.top + properties.rebound;
 	}
+	else if (properties.y + properties.height > clientRect.bottom)
+	{
+		properties.y = clientRect.bottom - properties.height - properties.rebound;
+	}
+	else if (properties.x < clientRect.left)
+	{
+		properties.x = clientRect.left + properties.rebound;
+	}
+	else if (properties.x + properties.width > clientRect.right)
+	{
+		properties.x = clientRect.right - properties.width - properties.rebound;
+	}
+}
+
+void Sprite::SetARect(RECT clientRect)
+{
+	this->clientRect = clientRect;
 }
 
 void Sprite::ChangeAState()
