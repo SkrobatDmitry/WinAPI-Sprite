@@ -41,7 +41,6 @@ public:
 	~Sprite();
 
 	void InitProperties(FLOAT x, FLOAT y, FLOAT width, FLOAT height, FLOAT speed, FLOAT rebound);
-	Properties GetProperties();
 
 	void MakeAStep(CHAR key);
 	void MakeABounce();

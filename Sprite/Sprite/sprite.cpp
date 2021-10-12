@@ -55,11 +55,6 @@ void Sprite::InitProperties(FLOAT x, FLOAT y, FLOAT width, FLOAT height, FLOAT s
 	properties.isImage = false;
 }
 
-Properties Sprite::GetProperties()
-{
-	return properties;
-}
-
 void Sprite::MakeAStep(CHAR key)
 {
 	switch (key)
