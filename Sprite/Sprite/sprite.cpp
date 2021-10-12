@@ -9,7 +9,10 @@ Sprite::Sprite(HWND hWnd, RECT clientRect)
 	hBitmap = CreateCompatibleBitmap(winDC, clientRect.right, clientRect.bottom);
 	hPrevBitmap = (HBITMAP)SelectObject(memDC, hBitmap);
 
-	// image = 
+	image = (HBITMAP)LoadImage(0, L"ghost.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+	GetObject(image, sizeof(BITMAP), &bm);
+	spriteDC = CreateCompatibleDC(winDC);
+	SelectObject(spriteDC, image);
 }
 
 Sprite::~Sprite()
@@ -34,6 +37,11 @@ void Sprite::DrawRectangle(HWND hWnd)
 
 void Sprite::DrawSprite(HWND hWnd)
 {
+	BeginPaint(hWnd, &ps);
+	PatBlt(memDC, 0, 0, clientRect.right, clientRect.bottom, WHITENESS);
+	BitBlt(memDC, (INT)properties.x, (INT)properties.y, bm.bmWidth, bm.bmHeight, spriteDC, 0, 0, SRCCOPY);
+	BitBlt(winDC, 0, 0, clientRect.right, clientRect.bottom, memDC, 0, 0, SRCCOPY);
+	EndPaint(hWnd, &ps);
 }
 
 void Sprite::InitProperties(FLOAT x, FLOAT y, FLOAT width, FLOAT height, FLOAT speed, FLOAT rebound)
@@ -107,8 +115,8 @@ void Sprite::Move(POINT mouseCoords)
 	}
 	else
 	{
-		properties.x += properties.speed * (mouseCoords.x - properties.x) / distance;
-		properties.y += properties.speed * (mouseCoords.y - properties.y) / distance;
+		properties.x += properties.speed * 0.7f * (mouseCoords.x - properties.x) / distance;
+		properties.y += properties.speed * 0.7f * (mouseCoords.y - properties.y) / distance;
 	}
 
 	MakeABounce();
@@ -126,5 +134,18 @@ void Sprite::ChangeAState()
 
 void Sprite::Draw(HWND hWnd)
 {
-	properties.isImage ? DrawSprite(hWnd) : DrawRectangle(hWnd);
+	if (properties.isImage)
+	{
+		properties.width = bm.bmWidth;
+		properties.height = bm.bmHeight;
+		MakeABounce();
+		DrawSprite(hWnd);
+	}
+	else
+	{
+		properties.width = 80.0f;
+		properties.height = 60.0f;
+		MakeABounce();
+		DrawRectangle(hWnd);
+	}
 }
