@@ -1,5 +1,6 @@
 #pragma once
 #include <windows.h>
+#include <cmath>
 
 struct Properties
 {
@@ -40,9 +41,11 @@ public:
 	~Sprite();
 
 	void InitProperties(FLOAT x, FLOAT y, FLOAT width, FLOAT height, FLOAT speed, FLOAT rebound);
-	
-	void MakeAMove(CHAR key);
+	Properties GetProperties();
+
+	void MakeAStep(CHAR key);
 	void MakeABounce();
+	void Move(POINT mouseCoords);
 	
 	void SetARect(RECT clientRect);
 	void ChangeAState();

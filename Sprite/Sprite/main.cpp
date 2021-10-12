@@ -9,19 +9,33 @@ POINT mouseCoords;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 ATOM             MyRegisterClass(HINSTANCE);
-BOOL             InitInstance(HINSTANCE, INT);
+HWND             InitInstance(HINSTANCE, INT);
 
 INT CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, INT nCmdShow)
 {
 	MSG msg;
+	HWND hWnd;
 
 	MyRegisterClass(hInstance);
-	InitInstance(hInstance, nCmdShow);
+	hWnd = InitInstance(hInstance, nCmdShow);
 
-	while (GetMessage(&msg, NULL, 0, 0))
+	msg.message = WM_NULL;
+	while (msg.message != WM_QUIT)
 	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			DispatchMessage(&msg);
+		}
+
+		if (GetAsyncKeyState(VK_LBUTTON))
+		{
+			GetCursorPos(&mouseCoords);
+			ScreenToClient(hWnd, &mouseCoords);
+
+			sprite->Move(mouseCoords);
+
+			InvalidateRect(hWnd, NULL, FALSE);
+		}
 	}
 
 	delete sprite;
@@ -41,37 +55,37 @@ LRESULT WINAPI MyWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 		case VK_UP:
 		case 'W':
-			sprite->MakeAMove('W');
+			sprite->MakeAStep('W');
 			break;
 		case VK_DOWN:
 		case 'S':
-			sprite->MakeAMove('S');
+			sprite->MakeAStep('S');
 			break;
 		case VK_LEFT:
 		case 'A':
-			sprite->MakeAMove('A');
+			sprite->MakeAStep('A');
 			break;
 		case VK_RIGHT:
 		case 'D':
-			sprite->MakeAMove('D');
+			sprite->MakeAStep('D');
 			break;
 		case VK_RETURN:
 			sprite->ChangeAState();
 			break;
 		}
 
-		InvalidateRect(hWnd, NULL, TRUE);
+		InvalidateRect(hWnd, NULL, FALSE);
 		break;
 	}
 	case WM_MOUSEWHEEL:
 	{
-		if (LOWORD(wParam) == MK_SHIFT)
+		if (GET_WHEEL_DELTA_WPARAM(wParam) > 0)
 		{
-			GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? sprite->MakeAMove('D') : sprite->MakeAMove('A');
+			LOWORD(wParam) == MK_SHIFT ? sprite->MakeAStep('D') : sprite->MakeAStep('S');
 		}
 		else
 		{
-			GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? sprite->MakeAMove('S') : sprite->MakeAMove('W');
+			LOWORD(wParam) == MK_SHIFT ? sprite->MakeAStep('A') : sprite->MakeAStep('W');
 		}
 	}
 	case WM_SIZE:
@@ -81,12 +95,7 @@ LRESULT WINAPI MyWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		sprite->SetARect(clientRect);
 		sprite->MakeABounce();
 		
-		InvalidateRect(hWnd, NULL, TRUE);
-		break;
-	}
-	case WM_LBUTTONDOWN:
-	{
-		GetCursorPos(&mouseCoords);
+		InvalidateRect(hWnd, NULL, FALSE);
 		break;
 	}
 	case WM_DESTROY:
@@ -117,25 +126,25 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	return RegisterClassEx(&wcex);
 }
 
-BOOL InitInstance(HINSTANCE hInstance, INT nCmdShow)
+HWND InitInstance(HINSTANCE hInstance, INT nCmdShow)
 {
-	HWND hWnd = CreateWindow(L"WinAPI", L"Sprite", WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, 0, 720, 480, NULL, NULL, hInstance, NULL);
+	HWND hWnd = CreateWindow(L"WinAPI", L"Sprite", WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, 0, 1920, 1080, NULL, NULL, hInstance, NULL);
 	if (!hWnd)
 	{
-		return FALSE;
+		return NULL;
 	}
 
 	GetClientRect(hWnd, &clientRect);
 	sprite = new Sprite(hWnd, clientRect);
 	if (!sprite)
 	{
-		return FALSE;
+		return NULL;
 	}
 
-	sprite->InitProperties((clientRect.right - clientRect.left - 30.0f) / 2, (clientRect.bottom - clientRect.top - 30.0f) / 2, 30.0f, 30.0f, 3.0f, 10.0f);
+	sprite->InitProperties((clientRect.right - clientRect.left - 80.0f) / 2, (clientRect.bottom - clientRect.top - 60.0f) / 2, 80.0f, 60.0f, 10.0f, 15.0f);
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 
-	return TRUE;
+	return hWnd;
 }

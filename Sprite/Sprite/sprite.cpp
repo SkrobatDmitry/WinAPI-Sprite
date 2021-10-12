@@ -24,10 +24,11 @@ Sprite::~Sprite()
 
 void Sprite::DrawRectangle(HWND hWnd)
 {
-	memDC = BeginPaint(hWnd, &ps);
+	BeginPaint(hWnd, &ps);
+	PatBlt(memDC, 0, 0, clientRect.right, clientRect.bottom, WHITENESS);
 	SelectObject(memDC, CreateSolidBrush(RGB(18, 188, 156)));
-	SelectObject(memDC, CreatePen(PS_SOLID, 3, RGB(54, 92, 112)));
-	Rectangle(memDC, (INT)properties.x, (INT)properties.y, (INT)properties.x + (INT)properties.width, (INT)properties.y + (INT)properties.height);
+	Rectangle(memDC, (INT)properties.x, (INT)properties.y, (INT)properties.x + (INT)properties.width, (INT)properties.y + (INT)properties.height);	
+	BitBlt(winDC, 0, 0, clientRect.right, clientRect.bottom, memDC, 0, 0, SRCCOPY);
 	EndPaint(hWnd, &ps);
 }
 
@@ -46,7 +47,12 @@ void Sprite::InitProperties(FLOAT x, FLOAT y, FLOAT width, FLOAT height, FLOAT s
 	properties.isImage = false;
 }
 
-void Sprite::MakeAMove(CHAR key)
+Properties Sprite::GetProperties()
+{
+	return properties;
+}
+
+void Sprite::MakeAStep(CHAR key)
 {
 	switch (key)
 	{
@@ -85,6 +91,27 @@ void Sprite::MakeABounce()
 	{
 		properties.x = clientRect.right - properties.width - properties.rebound;
 	}
+}
+
+void Sprite::Move(POINT mouseCoords)
+{
+	mouseCoords.x -= properties.width / 2;
+	mouseCoords.y -= properties.height / 2;
+	FLOAT distance = sqrt((mouseCoords.x - properties.x) * (mouseCoords.x - properties.x) + 
+						  (mouseCoords.y - properties.y) * (mouseCoords.y - properties.y));
+
+	if (distance < 5.0f)
+	{
+		properties.x = mouseCoords.x;
+		properties.y = mouseCoords.y;
+	}
+	else
+	{
+		properties.x += properties.speed * (mouseCoords.x - properties.x) / distance;
+		properties.y += properties.speed * (mouseCoords.y - properties.y) / distance;
+	}
+
+	MakeABounce();
 }
 
 void Sprite::SetARect(RECT clientRect)
