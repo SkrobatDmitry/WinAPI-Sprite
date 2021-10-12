@@ -63,11 +63,24 @@ LRESULT WINAPI MyWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		InvalidateRect(hWnd, NULL, TRUE);
 		break;
 	}
+	case WM_MOUSEWHEEL:
+	{
+		if (LOWORD(wParam) == MK_SHIFT)
+		{
+			GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? sprite->MakeAMove('D') : sprite->MakeAMove('A');
+		}
+		else
+		{
+			GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? sprite->MakeAMove('S') : sprite->MakeAMove('W');
+		}
+	}
 	case WM_SIZE:
 	{
 		GetClientRect(hWnd, &clientRect);
+
 		sprite->SetARect(clientRect);
 		sprite->MakeABounce();
+		
 		InvalidateRect(hWnd, NULL, TRUE);
 		break;
 	}
